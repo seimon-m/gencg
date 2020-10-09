@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Wave</title>
+        <script src="sketch.js" type="module"></script>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="p5Container" class="canvas-container"></div>
+        <script type="x-shader/x-vertex" id="vertexshader">
+
+            attribute float scale;
+            varying vec2 vUv;
+
+			void main() {
+                vUv = uv;
+
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+				gl_PointSize = scale * ( 300.0 / - mvPosition.z );
+
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			#include <packing>
+
+            varying vec2 vUv;
+            uniform sampler2D tDiffuse;
+            uniform sampler2D tDepth;
+            uniform float cameraNear;
+            uniform float cameraFar;
+
+            uniform vec3 color;
+    
+    
+            float readDepth( sampler2D depthSampler, vec2 coord ) {
+                float fragCoordZ = texture2D( depthSampler, coord ).x;
+                float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+                return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+            }
+    
+            void main() {
+                
+                vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
+                float depth = readDepth( tDepth, vUv );
+                
+                gl_FragColor.rgb = color - vec3( depth * 2.0 );
+                gl_FragColor.a = 1.0;
+            }
+
+		</script>
+    </body>
+</html>

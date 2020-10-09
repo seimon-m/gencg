@@ -1,0 +1,21 @@
+# Site settings
+# title:
+# email:
+# description: > # this means to ignore newlines until "baseurl:"
+# baseurl: "students-test/" # the subpath of your site, e.g. /blog/
+# url: "" # the base hostname & protocol for your site
+
+twitter_username: seimon_m
+github_username: seimon-m
+title: Simon Müller
+subtitle: I.BA_222_GENCG.H2001 - Winter 2020
+
+# # Build settings
+# markdown: kramdown
+
+collections:
+  Sketches:
+    output: true
+    
+    
+  

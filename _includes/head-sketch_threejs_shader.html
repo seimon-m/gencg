@@ -1,0 +1,82 @@
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>{{ page.title }}</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="../../css/bootstrap.min.css" type="text/css" />
+    <!-- Custom Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css?family=Rokkitt:200,300,400|Ubuntu:300,400"
+        rel="stylesheet"
+    />
+    <link
+        rel="stylesheet"
+        href="../../font-awesome/css/font-awesome.min.css"
+        type="text/css"
+    />
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="../../css/animate.min.css" type="text/css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/main.css" type="text/css" />
+
+    {% for include in page.includes %}
+    <script src="{{ include.src }}" type="module"></script>
+    <script type="x-shader/x-vertex" id="vertexshader">
+
+        attribute float scale;
+        varying vec2 vUv;
+
+        void main() {
+            vUv = uv;
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            gl_PointSize = scale * ( 300.0 / - mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+
+        #include <packing>
+
+        varying vec2 vUv;
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+
+        uniform vec3 color;
+
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+        }
+
+        void main() {
+
+            vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
+            float depth = readDepth( tDepth, vUv );
+
+            gl_FragColor.rgb = color - vec3( depth * 2.0 );
+            gl_FragColor.a = 1.0;
+        }
+    </script>
+    {% endfor %}
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
